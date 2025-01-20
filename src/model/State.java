@@ -23,7 +23,7 @@ public class State {
     }
 
     public int getPos(int player, int piece) {
-        return Game.beginning(player) + getPiece(player, piece);
+        return (Game.beginning(player) + getPiece(player, piece)) % 52;
     }
 
     public State deepCopy() {
@@ -48,8 +48,9 @@ public class State {
 
     public void entry(int player) {
         for (int i = 0; i < 4; i++) {
-            if (getPos(player, i) == -1) {
-                //
+            if (getPiece(player, i) == -1) {
+                setPiece(player, i, 0);
+                break;
             }
         }
     }

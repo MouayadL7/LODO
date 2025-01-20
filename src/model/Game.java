@@ -1,5 +1,7 @@
 package model;
 
+import java.util.Random;
+
 public class Game {
     static public int beginning(int player) {
         return (12 * player) + player + 1;
@@ -12,5 +14,11 @@ public class Game {
             }
         }
         return false;
+    }
+
+    static public int throwDice() {
+        Random random = new Random();
+
+        return random.nextInt(6) + 1;
     }
 }
