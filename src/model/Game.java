@@ -7,6 +7,7 @@ import java.util.Vector;
 
 public class Game {
     static public Map<Vector<Integer>, Float> map = new HashMap<>();
+    static public Map<Integer, Float> map2 = new HashMap<>();
 
     static public int beginning(int player) {
         return (12 * player) + player + 1;
@@ -27,23 +28,32 @@ public class Game {
         return random.nextInt(6) + 1;
     }
 
-
     static public void generate() {
         Vector<Integer> v = new Vector<>();
+        int sum = 0;
         for (int i = 1; i < 6; i++) {
             v.add(i);
             map.put(v, 1 / 6.0f);
+            sum += i;
+            map2.put(sum, 1 / 6.0f);
             for (int j = 1; j < 6; j++) {
                 v.add(j);
                 map.put(v, 1 / 36.0f);
+                sum += j;
+                map2.put(sum, 1 / 6.0f);
                 for (int k = 1; k <= 6; k++) {
                     v.add(k);
                     map.put(v, 1 / 216.0f);
                     v.removeLast();
+                    sum += k;
+                    map2.put(sum, 1 / 6.0f);
+                    sum -= k;
                 }
                 v.removeLast();
+                sum -= j;
             }
             v.removeFirst();
+            sum -= i;
         }
     }
 }

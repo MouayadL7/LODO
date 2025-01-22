@@ -3,6 +3,8 @@ package view;
 import algorithm.Bot;
 import algorithm.User;
 import controller.GameController;
+import model.Game;
+import model.State;
 
 import java.util.List;
 import java.util.Scanner;
@@ -10,12 +12,16 @@ import java.util.Scanner;
 public class GameView {
     User user;
     Bot bot;
-    GameController gameController;
+    State state;
 
-    public GameView(User user, Bot bot, GameController gameController) {
+    public GameView(User user, Bot bot, State state) {
         this.user = user;
         this.bot = bot;
-        this.gameController = gameController;
+        this.state = state;
+    }
+
+    public int throwDice() {
+        return Game.throwDice();
     }
 
     public void displayGrid() {
@@ -23,7 +29,7 @@ public class GameView {
     }
 
     public boolean showChoiceOptions(int steps) {
-        if (gameController.checkHouse(0, gameController.getState())) {
+        if (GameController.checkHouse(0, state)) {
             return true;
         }
         else {
@@ -33,7 +39,7 @@ public class GameView {
     }
 
     public void showPieceOptions(int steps) {
-        List<Integer> pieces = user.canPiece(steps);
+        List<Integer> pieces = user.pieceCanMove(steps);
         for (int i = 0; i < pieces.size(); i++) {
             //
         }
@@ -42,11 +48,11 @@ public class GameView {
     public void play() {
         int player = 0;
         Scanner scanner  = new Scanner(System.in);
-        while (!gameController.isFinal(gameController.getState())) {
+        while (!GameController.isFinal(state)) {
             displayGrid();
             if (player == 0) {
                 // throw dice
-                int steps = user.throwDice();
+                int steps = throwDice();
                 System.out.println("steps = " + steps);
 
                 // show options, enter choice
@@ -69,7 +75,7 @@ public class GameView {
                 }
             }
             else {
-                int steps = bot.throwDice();
+                int steps = throwDice();
                 bot.move(steps);
             }
         }

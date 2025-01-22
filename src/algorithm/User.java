@@ -3,25 +3,22 @@ package algorithm;
 import controller.GameController;
 import controller.Pair;
 import model.Game;
+import model.State;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class User {
-    GameController gameController;
+    State state;
 
-    public User(GameController gameController) {
-        this.gameController = gameController;
+    public User(State state) {
+        this.state = state;
     }
 
-    public int throwDice() {
-        return Game.throwDice();
-    }
-
-    public List<Integer> canPiece(int steps) {
+    public List<Integer> pieceCanMove(int steps) {
         List<Integer> pieces = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
-            if (gameController.canMove(0, i, steps, gameController.getState())) {
+            if (GameController.canMove(0, i, steps, state)) {
                 pieces.add(i);
             }
         }
@@ -30,10 +27,10 @@ public class User {
     }
 
     public void movePiece(int piece, int steps) {
-        gameController.move(0, piece, steps, gameController.getState());
+        GameController.move(0, piece, steps, state);
     }
 
     public void enterPiece() {
-        gameController.enterToGame(0, gameController.getState());
+        GameController.enterToGame(0, state);
     }
 }

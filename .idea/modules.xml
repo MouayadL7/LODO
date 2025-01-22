@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/LODO.iml" filepath="$PROJECT_DIR$/LODO.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LUDO.iml" filepath="$PROJECT_DIR$/LUDO.iml" />
     </modules>
   </component>
 </project>

@@ -9,10 +9,9 @@ import view.GameView;
 public class Main {
     public static void main(String[] args) {
         State state = new State();
-        GameController gameController = new GameController(state);
-        User user = new User(gameController);
-        Bot bot = new Bot(gameController);
-        GameView gameView = new GameView(user, bot, gameController);
+        User user = new User(state);
+        Bot bot = new Bot(state);
+        GameView gameView = new GameView(user, bot);
 
     }
 }
