@@ -25,38 +25,48 @@ public class GameView {
     }
 
     public void displayGrid() {
-        //
+        System.out.println("Heuristic = " + state.heuristic());
+        for (int i = 0; i < 4; i++) {
+            System.out.println(state.getPiece(0, i) + " " + state.getPiece(1, i));
+        }
     }
 
-    public boolean showChoiceOptions(int steps) {
-        if (GameController.checkHouse(0, state)) {
-            return true;
+    public int showChoiceOptions(int steps) {
+        if (steps == 6 && GameController.checkHouse(0, state)) {
+            System.out.println("Enter 0 for enter new piece to game");
+            System.out.println("Enter 1 for select piece to move it");
+            return 0;
+        }
+        else if (!user.pieceCanMove(steps).isEmpty()) {
+            showPieceOptions(steps);
+            return 1;
         }
         else {
-            showPieceOptions(steps);
-            return false;
+            return 2;
         }
     }
 
     public void showPieceOptions(int steps) {
         List<Integer> pieces = user.pieceCanMove(steps);
         for (int i = 0; i < pieces.size(); i++) {
-            //
+            System.out.println("Enter " + pieces.get(i));
         }
     }
 
     public void play() {
         int player = 0;
-        Scanner scanner  = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
         while (!GameController.isFinal(state)) {
+            System.out.println("Player = " + player);
             displayGrid();
+            // throw dice
+            int steps = throwDice();
+            System.out.println("steps = " + steps);
             if (player == 0) {
-                // throw dice
-                int steps = throwDice();
-                System.out.println("steps = " + steps);
-
                 // show options, enter choice
-                if (showChoiceOptions(steps)) {
+                int counter = 0;
+                int x = showChoiceOptions(steps);
+                if (x == 0) {
                     int choice = scanner.nextInt();
 
                     if (choice == 0) {
@@ -69,15 +79,16 @@ public class GameView {
                         user.movePiece(piece, steps);
                     }
                 }
-                else {
+                else if (x == 1) {
                     int piece = scanner.nextInt();
                     user.movePiece(piece, steps);
                 }
             }
             else {
-                int steps = throwDice();
                 bot.move(steps);
             }
+
+            player = 1 - player;
         }
     }
 }

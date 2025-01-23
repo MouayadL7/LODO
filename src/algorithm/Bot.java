@@ -20,7 +20,7 @@ public class Bot {
         v.add(steps);
 
         Pair<State, Float> p = Minimax(1, state, v, 0);
-        this.state = p.getFirst();
+        state.set(p.getFirst());
     }
 
     public Pair<State, Float> Minimax(int player, State state, Vector<Integer> steps, int depth) {
@@ -28,15 +28,18 @@ public class Bot {
             return new Pair<>(state, GameController.utility(state));
         }
 
-        if (depth == 4) {
+        if (depth == 2) {
             return new Pair<>(state, state.heuristic());
         }
 
         List<State> stateList = state.nextStates(1, steps);
 
-        float value = (player == 1) ? -2 : 2;
+        float value = (player == 1) ? Integer.MIN_VALUE : Integer.MAX_VALUE;
         State tempState = state.deepCopy();
         for (State state1 : stateList) {
+            if (state.eq(state1)) {
+                continue;
+            }
             float ev = GameController.isFinal(state1) ? GameController.utility(state1) : expectedValue(state1, player, depth);
             if (player == 1 && ev > value) {
                 value = ev;
@@ -52,12 +55,12 @@ public class Bot {
     }
 
     public float expectedValue(State state, int player, int depth) {
-        float ev = 0.0f;
-        for (Vector<Integer> key : Game.map.keySet()) {
-            float p = Game.map.get(key);
-            ev += p * Minimax(1 - player, state, key, depth + 1).getSecond();
-        }
+        final float[] ev = {0.0f};
+        Game.map.forEach((key, value) -> {
+            //System.out.println(value);
+            ev[0] += value * Minimax(1 - player, state, key, depth + 1).getSecond();
+        });
 
-        return ev;
+        return ev[0];
     }
 }

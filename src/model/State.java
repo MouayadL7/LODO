@@ -15,6 +15,14 @@ public class State {
         };
     }
 
+    public void set(State state) {
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 4; j++) {
+                setPiece(i, j, state.getPiece(i, j));
+            }
+        }
+    }
+
     public int[][] getPieces() {
         return pieces;
     }
@@ -79,7 +87,27 @@ public class State {
         for (int i = 0; i < 4; i++) {
             if (GameController.canMove(player, i, steps, this)) {
                 State nextState = generateState(player, i, steps);
-                nextStates.add(nextState);
+                boolean f = true;
+                for (State state : nextStates) {
+                    boolean ff = true;
+                    for (int j = 0; j < 4; j++) {
+                        if (state.getPiece(0, j) != nextState.getPiece(0, j)) {
+                            ff = false;
+                            break;
+                        }
+                        if (state.getPiece(1, j) != nextState.getPiece(1, j)) {
+                            ff = false;
+                            break;
+                        }
+                    }
+                    if (ff) {
+                        f = false;
+                        break;
+                    }
+                }
+                if (f) {
+                    nextStates.add(nextState);
+                }
             }
         }
 
@@ -107,22 +135,37 @@ public class State {
         stateList.add(state);
 
         for (int i = 0; i < steps.size(); i++) {
+            List<State> states = new ArrayList<>();
             for (State state1 : stateList) {
-                stateList = state1.generateNextStates(player, steps.get(i));
+                List<State> list = state1.generateNextStates(player, steps.get(i));
+                states.addAll(list);
             }
+            stateList = states;
         }
 
         return stateList;
+    }
+
+    public boolean midOrLate(int player) {
+        int counter = 0;
+        for (int i = 0; i < 4; i++) {
+            if (getPiece(player, i) == 57) {
+                counter++;
+            }
+        }
+
+        return counter > 2;
     }
 
     public int stones(int player) {
         int score = 0;
         for (int i = 0; i < 4; i++) {
             if (getPiece(player, i) == -1) {
-                score -= 10;
+                score -= 100;
             }
             else {
-                score += getPiece(player, i);
+                score += getPiece(player, i) * 10;
+              //  score -= (57 - getPiece(player, i)) * (midOrLate(player) ? 5 : 2);
             }
         }
         return score;
@@ -133,19 +176,23 @@ public class State {
         map.put(60, 0);
 
         for (int i = 0; i < 4; i++) {
-            int pos = getPos(player, i);
-            if (map.containsKey(pos)) {
-                map.put(pos, map.get(pos) + 1);
-            }
-            else {
-                map.put(pos, 1);
+            if (getPiece(player, i) != -1) {
+                int pos = getPos(player, i);
+                if (map.containsKey(pos)) {
+                    map.put(pos, map.get(pos) + 1);
+                }
+                else {
+                    map.put(pos, 1);
+                }
             }
         }
 
         AtomicInteger score = new AtomicInteger();
+        AtomicInteger i = new AtomicInteger();
         map.forEach((key, value) -> {
-            if (value >= 2) {
-                score.addAndGet((int) (stones.stream().filter(p -> p.compareTo(key) < 0).count() * 10));
+            if (value >= 2 && key < 52) {
+                score.addAndGet((int) (stones.stream().filter(p -> p != -1 && getPos(1 - player, i.get()) < key && (51 - p) >= (key - getPos(1 - player, i.get()))).count() * 5));
+                i.getAndIncrement();
             }
         });
 
@@ -155,7 +202,7 @@ public class State {
     public int saveCells(int player) {
         int score = 0;
         for (int i = 0; i < 4; i++) {
-            if (Game.isSave(getPos(player, i)) || getPiece(player, i) > 51) {
+            if (getPiece(player, i) != -1 && (Game.isSave(getPos(player, i)) || getPiece(player, i) > 51)) {
                 score += 10;
             }
         }
@@ -166,18 +213,52 @@ public class State {
     public float killOpponent(int player) {
         float score = 0.0f;
         for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                int distance = getPos(1 - player, j) - getPos(player, i);
-                if (Game.map2.containsKey(distance)) {
-                    score += Game.map2.get(distance) * 10;
+            if (getPiece(player, i) != -1) {
+                for (int j = 0; j < 4; j++) {
+                    if (!Game.isSave(getPos(1 - player, j)) && getPiece(1 - player, j) != -1) {
+                        int distance = getPos(1 - player, j) - getPos(player, i);
+                        if (Game.map2.containsKey(distance)) {
+                            score += Game.map2.get(distance) * 5;
+                        }
+                    }
                 }
             }
         }
         return score;
     }
 
+    public float spread(int player) {
+        int sum = 0;
+        int counter = 0;
+        for (int i = 0; i < 4; i++) {
+            if (getPiece(player, i) != -1) {
+                sum += getPos(player, i);
+                counter++;
+            }
+        }
+
+        if (counter == 0) {
+            return 0;
+        }
+
+        float avg = sum / (counter * 1.0f);
+
+        float variance = 0.0f;
+        for (int i = 0; i < 4; i++) {
+            if (getPiece(player, i) != -1) {
+                float current = getPos(player, i) - avg;
+                variance += current * current;
+            }
+        }
+
+        variance /= (counter * 1.0f);
+
+        return variance * (midOrLate(player) ? 5 : 10);
+    }
+
     public float heuristic() {
-        float score = 0;
+        float score = 0.0f;
+        //System.out.println("score = " + score);
 
         List<Integer> userStones = new ArrayList<>();
         List<Integer> botStones = new ArrayList<>();
@@ -187,28 +268,65 @@ public class State {
         }
 
         // Getting home
-        score += Collections.frequency(botStones, 57) * 25;
-        score -= Collections.frequency(userStones, 57) * 25;
+        score += Collections.frequency(botStones, 57) * (midOrLate(1) ? 500 : 250);
+       // System.out.println("score = " + score);
+        score -= Collections.frequency(userStones, 57) * (midOrLate(0) ? 500 : 250);
+       // System.out.println("score = " + score);
 
         userStones.removeIf(piece -> piece == 57);
         botStones.removeIf(piece -> piece == 57);
 
         // Stones
         score += stones(1);
+      //  System.out.println("score = " + score);
         score -= stones(0);
+      //  System.out.println("score = " + score);
 
         // Walls
         score += walls(1, userStones);
+       // System.out.println("score = " + score);
         score -= walls(0, botStones);
+      //  System.out.println("score = " + score);
 
         // Save cells
         score += saveCells(1);
+       // System.out.println("score = " + score);
         score -= saveCells(0);
+      //  System.out.println("score = " + score);
 
         // kill opponent's stone
         score += killOpponent(1);
+        //System.out.println("score = " + score);
         score -= killOpponent(0);
+       // System.out.println("score = " + score);
 
+        // Pieces distribution
+        //score -= spread(1);
+        //System.out.println("score = " + score);
+       // score += spread(0);
+        //System.out.println("score = " + score);
 
+        return score;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < 4; i++) {
+            stringBuilder.append(getPiece(0, i)).append(" ").append(getPiece(1, i)).append("\n");
+        }
+        stringBuilder.append("================\n");
+        return stringBuilder.toString();
+    }
+
+    public boolean eq(State state) {
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (getPiece(i, j) != state.getPiece(i, j)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

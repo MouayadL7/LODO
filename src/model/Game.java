@@ -34,26 +34,30 @@ public class Game {
         for (int i = 1; i < 6; i++) {
             v.add(i);
             map.put(v, 1 / 6.0f);
+            v.removeLast();
             sum += i;
             map2.put(sum, 1 / 6.0f);
-            for (int j = 1; j < 6; j++) {
-                v.add(j);
-                map.put(v, 1 / 36.0f);
-                sum += j;
-                map2.put(sum, 1 / 6.0f);
-                for (int k = 1; k <= 6; k++) {
-                    v.add(k);
-                    map.put(v, 1 / 216.0f);
-                    v.removeLast();
-                    sum += k;
-                    map2.put(sum, 1 / 6.0f);
-                    sum -= k;
-                }
-                v.removeLast();
-                sum -= j;
-            }
-            v.removeFirst();
             sum -= i;
+        }
+        v.add(6);
+        sum += 6;
+        for (int j = 1; j < 6; j++) {
+            v.add(j);
+            map.put(v, 1 / 36.0f);
+            sum += j;
+            map2.put(sum, 1 / 6.0f);
+            v.removeLast();
+            sum -= j;
+        }
+        v.add(6);
+        sum += 6;
+        for (int k = 1; k <= 6; k++) {
+            v.add(k);
+            map.put(v, 1 / 216.0f);
+            v.removeLast();
+            sum += k;
+            map2.put(sum, 1 / 6.0f);
+            sum -= k;
         }
     }
 }
