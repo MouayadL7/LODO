@@ -165,7 +165,6 @@ public class State {
             }
             else {
                 score += getPiece(player, i) * 10;
-              //  score -= (57 - getPiece(player, i)) * (midOrLate(player) ? 5 : 2);
             }
         }
         return score;
@@ -269,42 +268,26 @@ public class State {
 
         // Getting home
         score += Collections.frequency(botStones, 57) * (midOrLate(1) ? 500 : 250);
-       // System.out.println("score = " + score);
         score -= Collections.frequency(userStones, 57) * (midOrLate(0) ? 500 : 250);
-       // System.out.println("score = " + score);
 
         userStones.removeIf(piece -> piece == 57);
         botStones.removeIf(piece -> piece == 57);
 
         // Stones
         score += stones(1);
-      //  System.out.println("score = " + score);
         score -= stones(0);
-      //  System.out.println("score = " + score);
 
         // Walls
         score += walls(1, userStones);
-       // System.out.println("score = " + score);
         score -= walls(0, botStones);
-      //  System.out.println("score = " + score);
 
         // Save cells
         score += saveCells(1);
-       // System.out.println("score = " + score);
         score -= saveCells(0);
-      //  System.out.println("score = " + score);
 
         // kill opponent's stone
         score += killOpponent(1);
-        //System.out.println("score = " + score);
         score -= killOpponent(0);
-       // System.out.println("score = " + score);
-
-        // Pieces distribution
-        //score -= spread(1);
-        //System.out.println("score = " + score);
-       // score += spread(0);
-        //System.out.println("score = " + score);
 
         return score;
     }

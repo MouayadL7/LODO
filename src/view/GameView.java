@@ -58,34 +58,40 @@ public class GameView {
         Scanner scanner = new Scanner(System.in);
         while (!GameController.isFinal(state)) {
             System.out.println("Player = " + player);
-            displayGrid();
-            // throw dice
-            int steps = throwDice();
-            System.out.println("steps = " + steps);
-            if (player == 0) {
-                // show options, enter choice
-                int counter = 0;
-                int x = showChoiceOptions(steps);
-                if (x == 0) {
-                    int choice = scanner.nextInt();
+            int counter = 0;
+            while (counter < 3) {
+                displayGrid();
+                // throw dice
+                int steps = throwDice();
+                System.out.println("steps = " + steps);
+                if (player == 0) {
+                    // show options, enter choice
+                    int x = showChoiceOptions(steps);
+                    if (x == 0) {
+                        int choice = scanner.nextInt();
 
-                    if (choice == 0) {
-                        user.enterPiece();
+                        if (choice == 0) {
+                            user.enterPiece();
+                        }
+                        else {
+                            showPieceOptions(steps);
+
+                            int piece = scanner.nextInt();
+                            user.movePiece(piece, steps);
+                        }
                     }
-                    else {
-                        showPieceOptions(steps);
-
+                    else if (x == 1) {
                         int piece = scanner.nextInt();
                         user.movePiece(piece, steps);
                     }
                 }
-                else if (x == 1) {
-                    int piece = scanner.nextInt();
-                    user.movePiece(piece, steps);
+                else {
+                    bot.move(steps);
                 }
-            }
-            else {
-                bot.move(steps);
+                counter++;
+                if (steps < 6) {
+                    break;
+                }
             }
 
             player = 1 - player;

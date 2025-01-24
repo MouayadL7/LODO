@@ -36,7 +36,7 @@ public class GameController {
     }
 
     static public boolean inRoad(int player, int piece, int steps, State state) {
-        return state.getPiece(player, piece) + steps < 57;
+        return state.getPiece(player, piece) + steps < 58;
     }
 
     static public boolean checkHouse(int player, State state) {
@@ -51,14 +51,12 @@ public class GameController {
     }
 
     static public boolean canMove(int player, int piece, int steps, State state) {
-        //System.out.println(player + " " + piece + " " + steps + " " + state.getPiece(player, piece));
         if (state.getPiece(player, piece) == -1) {
             return false;
         }
 
-        for (int i = piece + 1; i <= piece + steps; i++) {
+        for (int i = piece + 1; i < piece + steps; i++) {
             if (isWall(1 - player, state, i)) {
-                //System.out.println("Yes");
                 return false;
             }
         }
